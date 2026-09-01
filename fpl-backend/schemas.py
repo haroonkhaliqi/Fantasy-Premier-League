@@ -45,3 +45,7 @@ class SquadOut(BaseModel):
 
 class AddPlayerRequest(BaseModel):
     player_id: int
+
+class SetLineupRequest(BaseModel):
+    starting_player_ids: list[int]  # exactly 11 player ids
+    captain_id: int

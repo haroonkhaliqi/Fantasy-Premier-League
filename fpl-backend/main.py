@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from database import engine, Base, SessionLocal
 from auth import get_current_user
 import squad_rules
+from scheduler import start_scheduler
 import models
 import schemas
 import auth
@@ -11,6 +12,10 @@ import auth
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+@app.on_event("startup")
+def on_startup():
+    start_scheduler()
 
 app.add_middleware(
     CORSMiddleware,
@@ -142,3 +147,71 @@ def get_gameweek_stats(gameweek_number: int, db: Session = Depends(get_db)):
         }
         for s in stats
     ]
+
+@app.get("/squad/points/{gameweek_number}")
+def get_squad_points(
+    gameweek_number: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    squad = db.query(models.Squad).filter(models.Squad.user_id == current_user.id).first()
+    if not squad:
+        raise HTTPException(status_code=404, detail="No squad found")
+
+    total_points = 0
+    breakdown = []
+
+    for sp in squad.squad_players:
+        if not sp.is_starting:
+            continue  # bench players don't count toward total
+
+        stats = (
+            db.query(models.PlayerGameweekStats)
+            .filter(
+                models.PlayerGameweekStats.player_id == sp.player_id,
+                models.PlayerGameweekStats.gameweek_number == gameweek_number,
+            )
+            .first()
+        )
+
+        player_points = stats.points if stats else 0
+
+        # Captain gets double points
+        if sp.is_captain:
+            player_points *= 2
+
+        total_points += player_points
+        breakdown.append({
+            "player_name": sp.player.name,
+            "points": player_points,
+            "is_captain": sp.is_captain,
+        })
+
+    return {
+        "gameweek": gameweek_number,
+        "total_points": total_points,
+        "breakdown": breakdown,
+    }
+
+@app.post("/squad/lineup")
+def set_lineup(
+    request: schemas.SetLineupRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    squad = db.query(models.Squad).filter(models.Squad.user_id == current_user.id).first()
+    if not squad:
+        raise HTTPException(status_code=404, detail="No squad found")
+
+    if len(request.starting_player_ids) != 11:
+        raise HTTPException(status_code=400, detail="Starting lineup must have exactly 11 players")
+
+    if request.captain_id not in request.starting_player_ids:
+        raise HTTPException(status_code=400, detail="Captain must be in the starting lineup")
+
+    for sp in squad.squad_players:
+        sp.is_starting = sp.player_id in request.starting_player_ids
+        sp.is_captain = sp.player_id == request.captain_id
+
+    db.commit()
+    return {"message": "Lineup updated"}
