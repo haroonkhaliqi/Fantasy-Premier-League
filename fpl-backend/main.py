@@ -41,7 +41,7 @@ def read_root():
 
 @app.get("/players")
 def get_players(db: Session = Depends(get_db)):
-    players = db.query(models.Player).limit(20).all()
+    players = db.query(models.Player).all()
     return players
 
 
@@ -215,4 +215,69 @@ def set_lineup(
 
     db.commit()
     return {"message": "Lineup updated"}
-    
+
+@app.get("/leaderboard/{gameweek_number}")
+def get_leaderboard(gameweek_number: int, db: Session = Depends(get_db)):
+    squads = db.query(models.Squad).all()
+
+    results = []
+    for squad in squads:
+        total_points = 0
+        for sp in squad.squad_players:
+            if not sp.is_starting:
+                continue
+
+            stats = (
+                db.query(models.PlayerGameweekStats)
+                .filter(
+                    models.PlayerGameweekStats.player_id == sp.player_id,
+                    models.PlayerGameweekStats.gameweek_number == gameweek_number,
+                )
+                .first()
+            )
+            player_points = stats.points if stats else 0
+            if sp.is_captain:
+                player_points *= 2
+            total_points += player_points
+
+        results.append({
+            "username": squad.owner.username,
+            "total_points": total_points,
+        })
+
+    results.sort(key=lambda r: r["total_points"], reverse=True)
+
+    # Add rank after sorting
+    for i, r in enumerate(results, start=1):
+        r["rank"] = i
+
+    return {
+        "gameweek": gameweek_number,
+        "leaderboard": results,
+    }
+
+@app.delete("/squad/players/{player_id}", response_model=schemas.SquadOut)
+def remove_player_from_squad(
+    player_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    squad = db.query(models.Squad).filter(models.Squad.user_id == current_user.id).first()
+    if not squad:
+        raise HTTPException(status_code=404, detail="No squad found")
+
+    squad_player = (
+        db.query(models.SquadPlayer)
+        .filter(models.SquadPlayer.squad_id == squad.id, models.SquadPlayer.player_id == player_id)
+        .first()
+    )
+    if not squad_player:
+        raise HTTPException(status_code=404, detail="Player not in your squad")
+
+    player = db.query(models.Player).filter(models.Player.id == player_id).first()
+    squad.budget_remaining += player.price
+
+    db.delete(squad_player)
+    db.commit()
+    db.refresh(squad)
+    return squad

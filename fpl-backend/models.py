@@ -26,6 +26,7 @@ class Player(Base):
     __tablename__ = "players"
     id = Column(Integer, primary_key=True, index=True)
     fpl_id = Column(Integer, unique=True, index=True)
+    photo_code = Column(String)
     name = Column(String)
     position = Column(String)
     price = Column(Float)
