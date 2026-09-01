@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './AuthContext'
 import LoginPage from './pages/LoginPage'
 import SquadPage from './pages/SquadPage'
 import LeaderboardPage from './pages/LeaderboardPage'
+import HomePage from './pages/HomePage'
 import './App.css'
 
 function Nav() {
@@ -11,7 +12,7 @@ function Nav() {
 
   return (
     <nav className="navbar">
-      <span className="brand">Fantasy Tracker</span>
+      <Link to="/home" className="brand">Any Given XI</Link>
       <div className="nav-links">
         <Link to="/squad">Squad</Link>
         <Link to="/leaderboard">Leaderboard</Link>
@@ -34,6 +35,14 @@ function AppRoutes() {
       <Nav />
       <Routes>
         <Route path="/login" element={isLoggedIn ? <Navigate to="/squad" /> : <LoginPage />} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/squad"
           element={

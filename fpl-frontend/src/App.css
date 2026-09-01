@@ -4,6 +4,7 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #0d1f14;
   color: #f0f4f1;
@@ -123,6 +124,7 @@ body {
   margin: 0 auto;
   padding: 2rem;
   box-sizing: border-box;
+  min-height: 100vh;
 }
 
 .page h1 {
@@ -512,4 +514,121 @@ body {
   border-radius: 4px;
   background: #0d1f14;
   margin-bottom: 0.15rem;
+}
+
+.hero {
+  padding: 2rem 0 1rem;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
+  margin: 0 0 0.4rem;
+}
+
+.hero-subtitle {
+  color: #95d5b2;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.dashboard-card {
+  display: block;
+  background: #143a24;
+  border: 1px solid #2d6a4f;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: #f0f4f1;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.dashboard-card:hover {
+  border-color: #74c69d;
+  transform: translateY(-2px);
+}
+
+.dashboard-card.disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.card-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #95d5b2;
+  margin-bottom: 0.6rem;
+}
+
+.card-main {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.card-sub {
+  font-size: 0.85rem;
+  color: #b7e4c7;
+}
+
+.brand {
+  text-decoration: none;
+  color: #f0f4f1;
+}
+
+.captain-toggle {
+  position: absolute;
+  bottom: -8px;
+  left: -8px;
+  background: #143a24;
+  border: 1px solid #ffb703;
+  color: #ffb703;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.slot.filled.is-captain {
+  border-color: #ffb703;
+  box-shadow: 0 0 0 2px rgba(255, 183, 3, 0.4);
+}
+
+.captain-toggle:hover {
+  background: #ffb703;
+  color: #0d1f14;
+}
+
+.submit-squad-button {
+  display: block;
+  margin: 1.5rem auto 0;
+  background: #40916c;
+  border: none;
+  color: white;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.submit-squad-button:hover {
+  background: #52b788;
+}
+
+.success {
+  color: #74c69d;
+  text-align: center;
+  font-weight: 600;
+  margin-top: 0.75rem;
 }

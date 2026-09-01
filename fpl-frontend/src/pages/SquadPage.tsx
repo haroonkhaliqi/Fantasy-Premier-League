@@ -41,6 +41,8 @@ export default function SquadPage() {
   const [search, setSearch] = useState('')
   const [positionFilter, setPositionFilter] = useState('GK')
   const [sortBy, setSortBy] = useState<'name' | 'price'>('price')
+  const [captainId, setCaptainId] = useState<number | null>(null)
+  const [submitMessage, setSubmitMessage] = useState('')
 
   const loadData = async () => {
     try {
@@ -84,6 +86,37 @@ export default function SquadPage() {
       loadData()
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to remove player')
+    }
+  }
+
+  const toggleCaptain = (playerId: number) => {
+    setCaptainId((prev) => (prev === playerId ? null : playerId))
+  }
+
+  const submitSquad = async () => {
+    setError('')
+    setSubmitMessage('')
+
+    const startingIds: number[] = []
+    POSITION_ORDER.forEach((pos) => {
+      byPosition[pos].slice(0, STARTING_LIMITS[pos]).forEach((sp) => startingIds.push(sp.player_id))
+    })
+
+    if (startingIds.length !== 11) {
+      setError(`You need exactly 11 starters filled in (currently ${startingIds.length}).`)
+      return
+    }
+    if (!captainId || !startingIds.includes(captainId)) {
+      setError('Pick a captain from your starting XI before submitting.')
+      return
+    }
+
+    try {
+      await api.post('/squad/lineup', { starting_player_ids: startingIds, captain_id: captainId })
+      setSubmitMessage('Squad submitted for Gameweek 1!')
+      loadData()
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to submit squad')
     }
   }
 
@@ -136,15 +169,16 @@ export default function SquadPage() {
       <div className="squad-layout">
         <div className="squad-left">
           {(() => {
-            const renderSlots = (pos: string, limit: number, startIndex: number) => {
+              const renderSlots = (pos: string, limit: number, startIndex: number, isStartingRow: boolean) => {
               const filled = byPosition[pos].slice(startIndex, startIndex + limit)
               const slots = Array.from({ length: limit })
               return slots.map((_, i) => {
                 const sp = filled[i]
                 if (sp) {
                   const player = playerById(sp.player_id)
+                  const isCaptain = captainId === sp.player_id
                   return (
-                    <div className="slot filled" key={sp.player_id}>
+                    <div className={`slot filled ${isCaptain ? 'is-captain' : ''}`} key={sp.player_id}>
                       <button
                         className="slot-remove"
                         onClick={() => removePlayer(sp.player_id)}
@@ -162,6 +196,15 @@ export default function SquadPage() {
                       )}
                       <div className="slot-name">{player?.name}</div>
                       <div className="slot-price">£{player?.price}m</div>
+                      {isStartingRow && (
+                        <button
+                          className="captain-toggle"
+                          onClick={() => toggleCaptain(sp.player_id)}
+                          title="Set as captain"
+                        >
+                          {isCaptain ? 'C' : '+C'}
+                        </button>
+                      )}
                     </div>
                   )
                 }
@@ -180,23 +223,28 @@ export default function SquadPage() {
 
             return (
               <>
-                <div className="pitch">
-                  {POSITION_ORDER.map((pos) => (
-                    <div className="pitch-row" key={pos}>
-                      {renderSlots(pos, STARTING_LIMITS[pos], 0)}
-                    </div>
-                  ))}
+            <div className="pitch">
+              {POSITION_ORDER.map((pos) => (
+                <div className="pitch-row" key={pos}>
+                  {renderSlots(pos, STARTING_LIMITS[pos], 0, true)}
                 </div>
+              ))}
+            </div>
 
-                <h2>Bench</h2>
-                <div className="pitch bench">
-                  <div className="pitch-row">
-                    {POSITION_ORDER.map((pos) =>
-                      renderSlots(pos, BENCH_LIMITS[pos], STARTING_LIMITS[pos])
-                    )}
-                  </div>
+            <h2>Bench</h2>
+              <div className="pitch bench">
+                <div className="pitch-row">
+                  {POSITION_ORDER.map((pos) =>
+                    renderSlots(pos, BENCH_LIMITS[pos], STARTING_LIMITS[pos], false)
+                  )}
                 </div>
-              </>
+              </div>
+
+              <button className="submit-squad-button" onClick={submitSquad}>
+                Submit Squad
+              </button>
+              {submitMessage && <p className="success">{submitMessage}</p>}
+            </>
             )
           })()}
         </div>

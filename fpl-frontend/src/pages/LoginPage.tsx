@@ -20,7 +20,7 @@ export default function LoginPage() {
       } else {
         await login(email, password)
       }
-      navigate('/squad')
+      navigate('/home')
     } catch (err) {
       setError('Something went wrong. Check your details and try again.')
     }
