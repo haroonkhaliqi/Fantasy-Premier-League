@@ -25,8 +25,9 @@ class Team(Base):
 class Player(Base):
     __tablename__ = "players"
     id = Column(Integer, primary_key=True, index=True)
+    fpl_id = Column(Integer, unique=True, index=True)
     name = Column(String)
-    position = Column(String)  # "GK", "DEF", "MID", "FWD"
+    position = Column(String)
     price = Column(Float)
     total_points = Column(Integer, default=0)
     team_id = Column(Integer, ForeignKey("teams.id"))
@@ -61,3 +62,25 @@ class Gameweek(Base):
     id = Column(Integer, primary_key=True, index=True)
     number = Column(Integer, unique=True)
     is_locked = Column(Boolean, default=False)
+
+class PlayerGameweekStats(Base):
+    __tablename__ = "player_gameweek_stats"
+    id = Column(Integer, primary_key=True, index=True)
+    player_id = Column(Integer, ForeignKey("players.id"))
+    gameweek_number = Column(Integer)
+    minutes = Column(Integer, default=0)
+    goals_scored = Column(Integer, default=0)
+    assists = Column(Integer, default=0)
+    clean_sheets = Column(Integer, default=0)
+    goals_conceded = Column(Integer, default=0)
+    own_goals = Column(Integer, default=0)
+    penalties_saved = Column(Integer, default=0)
+    penalties_missed = Column(Integer, default=0)
+    yellow_cards = Column(Integer, default=0)
+    red_cards = Column(Integer, default=0)
+    saves = Column(Integer, default=0)
+    bonus = Column(Integer, default=0)
+    points = Column(Integer, default=0)
+
+    player = relationship("Player")
+

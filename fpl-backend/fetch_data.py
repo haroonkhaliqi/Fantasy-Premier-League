@@ -35,6 +35,7 @@ def fetch_and_store():
     # --- Players ---
     for player_data in data["elements"]:
         player = Player(
+            fpl_id=player_data["id"],
             name=f"{player_data['first_name']} {player_data['second_name']}",
             position=POSITION_MAP.get(player_data["element_type"], "UNKNOWN"),
             price=player_data["now_cost"] / 10,  # FPL stores price *10 (e.g. 125 = £12.5m)

@@ -122,3 +122,23 @@ def add_player_to_squad(
     db.commit()
     db.refresh(squad)
     return squad
+
+@app.get("/gameweek/{gameweek_number}/stats")
+def get_gameweek_stats(gameweek_number: int, db: Session = Depends(get_db)):
+    stats = (
+        db.query(models.PlayerGameweekStats)
+        .filter(models.PlayerGameweekStats.gameweek_number == gameweek_number)
+        .order_by(models.PlayerGameweekStats.points.desc())
+        .limit(10)
+        .all()
+    )
+    return [
+        {
+            "player_name": s.player.name,
+            "points": s.points,
+            "goals": s.goals_scored,
+            "assists": s.assists,
+            "minutes": s.minutes,
+        }
+        for s in stats
+    ]
