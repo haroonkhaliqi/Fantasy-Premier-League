@@ -215,3 +215,4 @@ def set_lineup(
 
     db.commit()
     return {"message": "Lineup updated"}
+    
