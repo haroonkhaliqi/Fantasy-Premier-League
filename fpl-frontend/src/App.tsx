@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage'
 import SquadPage from './pages/SquadPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import HomePage from './pages/HomePage'
+import LeaguesPage from './pages/LeaguesPage'
 import './App.css'
 
 function Nav() {
@@ -16,6 +17,7 @@ function Nav() {
       <div className="nav-links">
         <Link to="/squad">Squad</Link>
         <Link to="/leaderboard">Leaderboard</Link>
+        <Link to="/leagues">Leagues</Link>
         <button onClick={logout}>Log out</button>
       </div>
     </nav>
@@ -34,7 +36,7 @@ function AppRoutes() {
     <>
       <Nav />
       <Routes>
-        <Route path="/login" element={isLoggedIn ? <Navigate to="/squad" /> : <LoginPage />} />
+        <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <LoginPage />} />
         <Route
           path="/home"
           element={
@@ -56,6 +58,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <LeaderboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leagues"
+          element={
+            <ProtectedRoute>
+              <LeaguesPage />
             </ProtectedRoute>
           }
         />

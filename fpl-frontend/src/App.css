@@ -632,3 +632,200 @@ body {
   font-weight: 600;
   margin-top: 0.75rem;
 }
+
+.subtitle-text {
+  color: #95d5b2;
+  margin-top: -0.5rem;
+}
+
+.league-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.league-form {
+  background: #143a24;
+  border: 1px solid #2d6a4f;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.league-form h2 {
+  margin: 0;
+  border: none;
+  padding: 0;
+  font-size: 1rem;
+}
+
+.league-form input {
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #2d6a4f;
+  background: #0d1f14;
+  color: #f0f4f1;
+}
+
+.league-form button {
+  background: #40916c;
+  border: none;
+  color: white;
+  padding: 0.6rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.league-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.league-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #143a24;
+  border: 1px solid #2d6a4f;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.league-name {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.invite-code {
+  background: none;
+  border: none;
+  color: #95d5b2;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.league-leaderboard {
+  margin-top: 2rem;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.quick-action:hover {
+  background: #52b788;
+}
+
+.quick-action-form {
+  background: #143a24;
+  border: 1px solid #2d6a4f;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.quick-action-form form {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.quick-action-form input {
+  flex: 1;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #2d6a4f;
+  background: #0d1f14;
+  color: #f0f4f1;
+}
+
+.quick-action-form button {
+  background: #40916c;
+  border: none;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.invite-code-static {
+  color: #95d5b2;
+  font-size: 0.8rem;
+}
+
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  background: #143a24;
+  border: 1px solid #2d6a4f;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: #f0f4f1;
+  padding: 0;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.quick-action:hover {
+  border-color: #74c69d;
+  transform: translateY(-2px);
+}
+
+.quick-action-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: radial-gradient(circle at 50% 30%, #2d6a4f, #163d28 75%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.quick-action-image {
+  height: 100%;
+  width: auto;
+  max-width: 90%;
+  object-fit: contain;
+  object-position: bottom center;
+  display: block;
+}
+
+.quick-action-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  font-weight: 700;
+  font-size: 1rem;
+  background: #143a24;
+  border-top: 1px solid #2d6a4f;
+}
+
+.quick-action-badge {
+  background: #40916c;
+  color: white;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
