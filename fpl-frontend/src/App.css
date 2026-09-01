@@ -120,9 +120,9 @@ body {
 }
 
 .page {
-  max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
+  box-sizing: border-box;
 }
 
 .page h1 {
@@ -167,11 +167,15 @@ body {
   gap: 1rem;
 }
 
-.player-list li span:first-child,
-.player-list li {
+.player-list li span:first-child {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+}
+
+.player-list li {
+  overflow: hidden;
 }
 
 .player-list button {
@@ -273,4 +277,239 @@ body {
   color: #f0f4f1;
   font-size: 0.85rem;
   width: fit-content;
+}
+
+.remove-button {
+  background: #7f1d1d;
+  border: none;
+  color: white;
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.remove-button:hover {
+  background: #991b1b;
+}
+
+.pitch {
+  position: relative;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      #2d6a4f 0px,
+      #2d6a4f 60px,
+      #245c43 60px,
+      #245c43 120px
+    );
+  border: 3px solid #f0f4f1;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: space-between;
+  gap: 2.5rem;
+  margin: 1.5rem 0;
+  min-height: 75vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Center circle (half visible at the top edge) */
+.pitch::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 140px;
+  height: 140px;
+  border: 2px solid rgba(240, 244, 241, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Halfway line */
+.pitch::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(240, 244, 241, 0.5);
+  pointer-events: none;
+}
+
+/* Goal box at the bottom (behind GK row) */
+.pitch-row:first-child {
+  position: relative;
+}
+
+.pitch-row:first-child::before {
+  content: '';
+  position: absolute;
+  bottom: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  height: 90px;
+  border: 2px solid rgba(240, 244, 241, 0.5);
+  border-bottom: none;
+  pointer-events: none;
+}
+
+.pitch-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: nowrap;
+}
+
+.slot {
+  flex: 1 1 0;
+  min-width: 70px;
+  max-width: 150px;
+  min-height: 90px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  font-size: 0.8rem;
+  text-align: center;
+  position: relative;
+  padding: 0.5rem;
+  z-index: 1;
+}
+
+.slot.empty {
+  background: rgba(13, 31, 20, 0.35);
+  border: 2px dashed rgba(240, 244, 241, 0.6);
+  color: #f0f4f1;
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+}
+
+.slot.empty:hover {
+  background: rgba(13, 31, 20, 0.55);
+  border-color: #ffffff;
+}
+
+.slot.empty .plus {
+  font-size: 1.6rem;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.slot.filled {
+  background: rgba(13, 31, 20, 0.85);
+  border: 2px solid #ffb703;
+  color: #f0f4f1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.slot-position {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #95d5b2;
+  letter-spacing: 0.03em;
+}
+
+.slot-name {
+  font-weight: 600;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px;
+}
+
+.slot-price {
+  font-size: 0.7rem;
+  color: #b7e4c7;
+}
+
+.slot-remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #7f1d1d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.slot-remove:hover {
+  background: #991b1b;
+}
+
+.pitch.bench {
+  background: #143a24;
+  border: 2px solid #2d6a4f;
+  padding: 1rem;
+  min-height: unset;
+  flex-direction: column;
+}
+
+.pitch.bench::before,
+.pitch.bench::after {
+  content: none;
+}
+
+.pitch.bench .pitch-row:first-child::before {
+  content: none;
+}
+
+.pitch.bench .slot {
+  width: 90px;
+  min-height: 75px;
+  opacity: 0.85;
+}
+
+.squad-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  width: 100%;
+}
+
+.squad-right {
+  min-width: 0;
+}
+
+.squad-right .player-list {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+@media (min-width: 1100px) {
+  .squad-layout {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.pitch-page {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.slot-photo {
+  width: 42px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #0d1f14;
+  margin-bottom: 0.15rem;
 }
