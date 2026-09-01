@@ -7,6 +7,7 @@ interface Player {
   position: string
   price: number
   team_id: number
+  total_points: number
 }
 
 interface SquadPlayer {
@@ -25,13 +26,15 @@ export default function SquadPage() {
   const [squad, setSquad] = useState<Squad | null>(null)
   const [allPlayers, setAllPlayers] = useState<Player[]>([])
   const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
+  const [positionFilter, setPositionFilter] = useState('ALL')
+  const [sortBy, setSortBy] = useState<'name' | 'price' | 'points'>('points')
 
   const loadData = async () => {
     try {
       const squadRes = await api.get('/squad')
       setSquad(squadRes.data)
     } catch {
-      // No squad yet - that's fine, user can create one
       setSquad(null)
     }
     const playersRes = await api.get('/players')
@@ -78,6 +81,17 @@ export default function SquadPage() {
 
   const squadPlayerIds = new Set(squad.squad_players.map((sp) => sp.player_id))
 
+  const filteredPlayers = allPlayers
+    .filter((p) => !squadPlayerIds.has(p.id))
+    .filter((p) => positionFilter === 'ALL' || p.position === positionFilter)
+    .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === 'price') return b.price - a.price
+      if (sortBy === 'points') return b.total_points - a.total_points
+      return a.name.localeCompare(b.name)
+    })
+    .slice(0, 50)
+
   return (
     <div className="page">
       <h1>Your Squad</h1>
@@ -95,17 +109,43 @@ export default function SquadPage() {
       </ul>
 
       <h2>Available Players</h2>
-      <ul className="player-list">
-        {allPlayers
-          .filter((p) => !squadPlayerIds.has(p.id))
-          .slice(0, 30)
-          .map((p) => (
-            <li key={p.id}>
-              {p.name} — {p.position} — £{p.price}m
-              <button onClick={() => addPlayer(p.id)}>Add</button>
-            </li>
+
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="position-tabs">
+          {['ALL', 'GK', 'DEF', 'MID', 'FWD'].map((pos) => (
+            <button
+              key={pos}
+              className={positionFilter === pos ? 'active' : ''}
+              onClick={() => setPositionFilter(pos)}
+            >
+              {pos}
+            </button>
           ))}
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="sort-select">
+          <option value="points">Best players first</option>
+          <option value="price">Most expensive first</option>
+          <option value="name">Name (A-Z)</option>
+        </select>
+        </div>
+      </div>
+
+      <ul className="player-list">
+        {filteredPlayers.map((p) => (
+          <li key={p.id}>
+            {p.name} — {p.position} — £{p.price}m
+            <button onClick={() => addPlayer(p.id)}>Add</button>
+          </li>
+        ))}
       </ul>
+      {filteredPlayers.length === 50 && (
+        <p className="hint">Showing first 50 matches — narrow your search to see more.</p>
+      )}
     </div>
   )
 }

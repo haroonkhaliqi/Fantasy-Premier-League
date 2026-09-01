@@ -163,6 +163,19 @@ body {
   padding: 0.6rem 1rem;
   border-radius: 8px;
   border: 1px solid #2d6a4f;
+  min-height: 56px;
+  gap: 1rem;
+}
+
+.player-list li span:first-child,
+.player-list li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-list button {
+  flex-shrink: 0;
 }
 
 .player-list button {
@@ -202,4 +215,62 @@ body {
   color: #95d5b2;
   font-weight: 600;
   font-size: 0.85rem;
+}
+
+.page h1,
+.page h2 {
+  color: #f0f4f1 !important;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.filters input {
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #2d6a4f;
+  background: #143a24;
+  color: #f0f4f1;
+  font-size: 0.9rem;
+}
+
+.position-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.position-tabs button {
+  background: #143a24;
+  border: 1px solid #2d6a4f;
+  color: #95d5b2;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.position-tabs button.active {
+  background: #40916c;
+  color: white;
+  border-color: #40916c;
+}
+
+.hint {
+  color: #74c69d;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.sort-select {
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #2d6a4f;
+  background: #143a24;
+  color: #f0f4f1;
+  font-size: 0.85rem;
+  width: fit-content;
 }
