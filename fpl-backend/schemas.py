@@ -49,3 +49,20 @@ class AddPlayerRequest(BaseModel):
 class SetLineupRequest(BaseModel):
     starting_player_ids: list[int]  # exactly 11 player ids
     captain_id: int
+
+class LeagueCreate(BaseModel):
+    name: str
+
+
+class LeagueJoin(BaseModel):
+    invite_code: str
+
+
+class LeagueOut(BaseModel):
+    id: int
+    name: str
+    invite_code: str
+    owner_id: int
+
+    class Config:
+        from_attributes = True

@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
+import random
+import string
 
 
 class User(Base):
@@ -85,3 +87,27 @@ class PlayerGameweekStats(Base):
 
     player = relationship("Player")
 
+
+def generate_invite_code():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+
+class League(Base):
+    __tablename__ = "leagues"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    invite_code = Column(String, unique=True, index=True, default=generate_invite_code)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+
+    owner = relationship("User")
+    memberships = relationship("LeagueMembership", back_populates="league")
+
+
+class LeagueMembership(Base):
+    __tablename__ = "league_memberships"
+    id = Column(Integer, primary_key=True, index=True)
+    league_id = Column(Integer, ForeignKey("leagues.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    league = relationship("League", back_populates="memberships")
+    user = relationship("User")

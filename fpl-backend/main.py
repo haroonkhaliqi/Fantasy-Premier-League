@@ -281,3 +281,106 @@ def remove_player_from_squad(
     db.commit()
     db.refresh(squad)
     return squad
+
+@app.post("/leagues", response_model=schemas.LeagueOut)
+def create_league(
+    request: schemas.LeagueCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    league = models.League(name=request.name, owner_id=current_user.id)
+    db.add(league)
+    db.commit()
+    db.refresh(league)
+
+    # Creator automatically joins their own league
+    membership = models.LeagueMembership(league_id=league.id, user_id=current_user.id)
+    db.add(membership)
+    db.commit()
+
+    return league
+
+
+@app.post("/leagues/join", response_model=schemas.LeagueOut)
+def join_league(
+    request: schemas.LeagueJoin,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    league = db.query(models.League).filter(models.League.invite_code == request.invite_code.upper()).first()
+    if not league:
+        raise HTTPException(status_code=404, detail="Invalid invite code")
+
+    existing = (
+        db.query(models.LeagueMembership)
+        .filter(models.LeagueMembership.league_id == league.id, models.LeagueMembership.user_id == current_user.id)
+        .first()
+    )
+    if existing:
+        raise HTTPException(status_code=400, detail="You're already in this league")
+
+    membership = models.LeagueMembership(league_id=league.id, user_id=current_user.id)
+    db.add(membership)
+    db.commit()
+
+    return league
+
+
+@app.get("/leagues/mine", response_model=list[schemas.LeagueOut])
+def get_my_leagues(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    memberships = db.query(models.LeagueMembership).filter(models.LeagueMembership.user_id == current_user.id).all()
+    return [m.league for m in memberships]
+
+
+@app.get("/leagues/{league_id}/leaderboard/{gameweek_number}")
+def get_league_leaderboard(
+    league_id: int,
+    gameweek_number: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    league = db.query(models.League).filter(models.League.id == league_id).first()
+    if not league:
+        raise HTTPException(status_code=404, detail="League not found")
+
+    member_ids = [m.user_id for m in league.memberships]
+
+    results = []
+    for user_id in member_ids:
+        user = db.query(models.User).filter(models.User.id == user_id).first()
+        squad = db.query(models.Squad).filter(models.Squad.user_id == user_id).first()
+        if not squad:
+            results.append({"username": user.username, "total_points": 0})
+            continue
+
+        total_points = 0
+        for sp in squad.squad_players:
+            if not sp.is_starting:
+                continue
+            stats = (
+                db.query(models.PlayerGameweekStats)
+                .filter(
+                    models.PlayerGameweekStats.player_id == sp.player_id,
+                    models.PlayerGameweekStats.gameweek_number == gameweek_number,
+                )
+                .first()
+            )
+            player_points = stats.points if stats else 0
+            if sp.is_captain:
+                player_points *= 2
+            total_points += player_points
+
+        results.append({"username": user.username, "total_points": total_points})
+
+    results.sort(key=lambda r: r["total_points"], reverse=True)
+    for i, r in enumerate(results, start=1):
+        r["rank"] = i
+
+    return {
+        "league_name": league.name,
+        "gameweek": gameweek_number,
+        "leaderboard": results,
+    }
