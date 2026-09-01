@@ -1,21 +1,68 @@
-import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom'
+import { AuthProvider, useAuth } from './AuthContext'
+import LoginPage from './pages/LoginPage'
+import SquadPage from './pages/SquadPage'
+import LeaderboardPage from './pages/LeaderboardPage'
 import './App.css'
 
-function App() {
-  const [message, setMessage] = useState('Loading...')
-
-  useEffect(() => {
-    fetch('http://localhost:8000/')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch(() => setMessage('Failed to connect to backend'))
-  }, [])
+function Nav() {
+  const { isLoggedIn, logout } = useAuth()
+  if (!isLoggedIn) return null
 
   return (
-    <div>
-      <h1>FPL Tracker</h1>
-      <p>Backend says: {message}</p>
-    </div>
+    <nav className="navbar">
+      <span className="brand">Fantasy Tracker</span>
+      <div className="nav-links">
+        <Link to="/squad">Squad</Link>
+        <Link to="/leaderboard">Leaderboard</Link>
+        <button onClick={logout}>Log out</button>
+      </div>
+    </nav>
+  )
+}
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isLoggedIn } = useAuth()
+  return isLoggedIn ? <>{children}</> : <Navigate to="/login" />
+}
+
+function AppRoutes() {
+  const { isLoggedIn } = useAuth()
+
+  return (
+    <>
+      <Nav />
+      <Routes>
+        <Route path="/login" element={isLoggedIn ? <Navigate to="/squad" /> : <LoginPage />} />
+        <Route
+          path="/squad"
+          element={
+            <ProtectedRoute>
+              <SquadPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leaderboard"
+          element={
+            <ProtectedRoute>
+              <LeaderboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to={isLoggedIn ? '/squad' : '/login'} />} />
+      </Routes>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 

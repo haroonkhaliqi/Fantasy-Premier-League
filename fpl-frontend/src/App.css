@@ -1,184 +1,205 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+* {
+  box-sizing: border-box;
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0d1f14;
+  color: #f0f4f1;
 }
 
-#center {
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #143a24;
+  border-bottom: 2px solid #2d6a4f;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: #f0f4f1;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: #74c69d;
+}
+
+.nav-links button {
+  background: transparent;
+  border: 1px solid #52796f;
+  color: #f0f4f1;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, #1b4332, #0d1f14);
+}
+
+.auth-card {
+  background: #143a24;
+  padding: 2.5rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 380px;
+  border: 1px solid #2d6a4f;
+}
+
+.auth-card h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.6rem;
+}
+
+.subtitle {
+  color: #95d5b2;
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+}
+
+.auth-card form {
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  gap: 0.75rem;
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+.auth-card input {
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #2d6a4f;
+  background: #0d1f14;
+  color: #f0f4f1;
+  font-size: 0.95rem;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+.auth-card button[type='submit'] {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: none;
+  background: #40916c;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
 }
 
-#next-steps ul {
+.auth-card button[type='submit']:hover {
+  background: #52b788;
+}
+
+.link-button {
+  margin-top: 1.2rem;
+  background: none;
+  border: none;
+  color: #95d5b2;
+  cursor: pointer;
+  font-size: 0.85rem;
+  width: 100%;
+  text-align: center;
+}
+
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page h1 {
+  margin-bottom: 0.25rem;
+}
+
+.page h2 {
+  margin-top: 2rem;
+  font-size: 1.1rem;
+  color: #95d5b2;
+  border-bottom: 1px solid #2d6a4f;
+  padding-bottom: 0.5rem;
+}
+
+.budget {
+  color: #95d5b2;
+  font-weight: 600;
+}
+
+.error {
+  color: #ff8fa3;
+  font-size: 0.9rem;
+}
+
+.player-list {
   list-style: none;
   padding: 0;
   display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+.player-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #143a24;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #2d6a4f;
 }
 
-.ticks {
-  position: relative;
+.player-list button {
+  background: #40916c;
+  border: none;
+  color: white;
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.captain-badge {
+  background: #ffb703;
+  color: #0d1f14;
+  font-weight: 700;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+.leaderboard-table {
   width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+.leaderboard-table th,
+.leaderboard-table td {
+  text-align: left;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #2d6a4f;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+.leaderboard-table th {
+  color: #95d5b2;
+  font-weight: 600;
+  font-size: 0.85rem;
 }
