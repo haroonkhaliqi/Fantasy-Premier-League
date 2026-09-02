@@ -8,6 +8,7 @@ from scheduler import start_scheduler
 import models
 import schemas
 import auth
+import requests
 
 Base.metadata.create_all(bind=engine)
 
@@ -383,4 +384,111 @@ def get_league_leaderboard(
         "league_name": league.name,
         "gameweek": gameweek_number,
         "leaderboard": results,
+    }
+
+FPL_FIXTURES_URL = "https://fantasy.premierleague.com/api/fixtures/"
+
+@app.get("/fixtures")
+def get_fixtures(db: Session = Depends(get_db)):
+    response = requests.get(FPL_FIXTURES_URL)
+    response.raise_for_status()
+    fixtures_data = response.json()
+
+    teams_by_fpl_id = {t.fpl_id: t for t in db.query(models.Team).all()}
+
+    results = []
+    for fx in fixtures_data:
+        home = teams_by_fpl_id.get(fx["team_h"])
+        away = teams_by_fpl_id.get(fx["team_a"])
+        results.append({
+            "id": fx["id"],
+            "gameweek": fx.get("event"),
+            "home_team": home.name if home else "Unknown",
+            "away_team": away.name if away else "Unknown",
+            "home_badge": home.code if home else None,
+            "away_badge": away.code if away else None,
+            "home_score": fx["team_h_score"],
+            "away_score": fx["team_a_score"],
+            "kickoff_time": fx["kickoff_time"],
+            "started": fx["started"],
+            "finished": fx["finished"],
+        })
+
+    return results
+
+FPL_BOOTSTRAP_URL = "https://fantasy.premierleague.com/api/bootstrap-static/"
+
+@app.get("/gameweeks/current")
+def get_current_gameweek():
+    response = requests.get(FPL_BOOTSTRAP_URL)
+    response.raise_for_status()
+    data = response.json()
+
+    for event in data["events"]:
+        if event.get("is_current"):
+            return {"current_gameweek": event["id"]}
+
+    # Fallback: if no gameweek is marked current (e.g. pre-season), find the next one
+    for event in data["events"]:
+        if event.get("is_next"):
+            return {"current_gameweek": event["id"]}
+
+    return {"current_gameweek": 1}
+
+@app.get("/fixtures/{fixture_id}")
+def get_fixture_detail(fixture_id: int, db: Session = Depends(get_db)):
+    response = requests.get(FPL_FIXTURES_URL)
+    response.raise_for_status()
+    fixtures_data = response.json()
+
+    fixture = next((fx for fx in fixtures_data if fx["id"] == fixture_id), None)
+    if not fixture:
+        raise HTTPException(status_code=404, detail="Fixture not found")
+
+    teams_by_fpl_id = {t.fpl_id: t for t in db.query(models.Team).all()}
+    home = teams_by_fpl_id.get(fixture["team_h"])
+    away = teams_by_fpl_id.get(fixture["team_a"])
+
+    players_by_fpl_id = {p.fpl_id: p for p in db.query(models.Player).all()}
+
+    STAT_LABELS = {
+        "goals_scored": "Goal",
+        "assists": "Assist",
+        "yellow_cards": "Yellow Card",
+        "red_cards": "Red Card",
+        "own_goals": "Own Goal",
+        "penalties_saved": "Penalty Saved",
+        "penalties_missed": "Penalty Missed",
+        "saves": "Save",
+        "bonus": "Bonus",
+    }
+
+    events = []
+    for stat_block in fixture.get("stats", []):
+        identifier = stat_block.get("identifier")
+        label = STAT_LABELS.get(identifier)
+        if not label:
+            continue
+        for side in ("h", "a"):
+            for entry in stat_block.get(side, []):
+                player = players_by_fpl_id.get(entry["element"])
+                events.append({
+                    "type": label,
+                    "player_name": player.name if player else "Unknown",
+                    "value": entry["value"],
+                    "side": "home" if side == "h" else "away",
+                })
+
+    return {
+        "id": fixture["id"],
+        "home_team": home.name if home else "Unknown",
+        "away_team": away.name if away else "Unknown",
+        "home_badge": home.code if home else None,
+        "away_badge": away.code if away else None,
+        "home_score": fixture["team_h_score"],
+        "away_score": fixture["team_a_score"],
+        "finished": fixture["finished"],
+        "started": fixture["started"],
+        "kickoff_time": fixture["kickoff_time"],
+        "events": events,
     }

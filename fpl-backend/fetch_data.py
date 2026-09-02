@@ -25,6 +25,8 @@ def fetch_and_store():
     team_id_map = {}  # maps FPL's team id -> our Team.id
     for team_data in data["teams"]:
         team = Team(
+            fpl_id=team_data["id"],
+            code=team_data["code"],
             name=team_data["name"],
             short_name=team_data["short_name"],
         )

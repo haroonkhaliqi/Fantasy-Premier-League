@@ -18,6 +18,8 @@ class User(Base):
 class Team(Base):
     __tablename__ = "teams"
     id = Column(Integer, primary_key=True, index=True)
+    fpl_id = Column(Integer, unique=True, index=True)
+    code = Column(Integer)
     name = Column(String)
     short_name = Column(String)
 
