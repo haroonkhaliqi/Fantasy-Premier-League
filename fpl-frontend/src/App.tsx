@@ -5,6 +5,7 @@ import SquadPage from './pages/SquadPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import HomePage from './pages/HomePage'
 import LeaguesPage from './pages/LeaguesPage'
+import MatchesPage from './pages/MatchesPage'
 import './App.css'
 
 function Nav() {
@@ -15,6 +16,7 @@ function Nav() {
     <nav className="navbar">
       <Link to="/home" className="brand">Any Given XI</Link>
       <div className="nav-links">
+        <Link to="/matches">Matches</Link>
         <Link to="/squad">Squad</Link>
         <Link to="/leaderboard">Leaderboard</Link>
         <Link to="/leagues">Leagues</Link>
@@ -66,6 +68,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <LeaguesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/matches"
+          element={
+            <ProtectedRoute>
+              <MatchesPage />
             </ProtectedRoute>
           }
         />
