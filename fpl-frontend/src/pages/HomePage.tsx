@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import api from '../api'
+import { useAuth } from '../AuthContext'
 
 interface Squad {
   id: number
@@ -16,6 +17,8 @@ interface League {
 }
 
 export default function HomePage() {
+  const { isLoggedIn } = useAuth()
+  const navigate = useNavigate()
   const [squad, setSquad] = useState<Squad | null>(null)
   const [leagues, setLeagues] = useState<League[]>([])
   const [loading, setLoading] = useState(true)
@@ -27,6 +30,12 @@ export default function HomePage() {
   const [formMessage, setFormMessage] = useState('')
 
   const loadData = async () => {
+    if (!isLoggedIn) {
+      setSquad(null)
+      setLeagues([])
+      setLoading(false)
+      return
+    }
     try {
       const squadRes = await api.get('/squad')
       setSquad(squadRes.data)
@@ -44,15 +53,24 @@ export default function HomePage() {
 
   useEffect(() => {
     loadData()
-  }, [])
-
-  const startersCount = squad?.squad_players.filter((sp) => sp.is_starting).length || 0
-  const squadCount = squad?.squad_players.length || 0
+  }, [isLoggedIn])
 
   const openForm = (form: 'create' | 'join') => {
+    if (!isLoggedIn) {
+      navigate('/login', { state: { from: { pathname: '/home' } } })
+      return
+    }
     setActiveForm(activeForm === form ? null : form)
     setFormError('')
     setFormMessage('')
+  }
+
+  const goToLeaderboard = () => {
+    if (!isLoggedIn) {
+      navigate('/login', { state: { from: { pathname: '/leaderboard' } } })
+      return
+    }
+    navigate('/leaderboard')
   }
 
   const createLeague = async (e: React.FormEvent) => {
@@ -84,18 +102,19 @@ export default function HomePage() {
   return (
     <div className="page home-page">
       <div className="hero">
-        <h1>Welcome back</h1>
-        <p className="hero-subtitle">Here's where things stand for Gameweek 1.</p>
+        <h1>Welcome to Any Given XI Fantasy Fútbol</h1>
+        {/*Here&apos;s where*/}
+        <p className="hero-subtitle">Compete with your friends for the Fantasy Throne!</p>
       </div>
 
       <div className="quick-actions">
-          <button className="quick-action" onClick={() => openForm('create')}>
+        <button className="quick-action" onClick={() => openForm('create')}>
           <div className="quick-action-image-wrap">
             <img className="quick-action-image" src="/images/create-league.png" alt="" />
           </div>
           <div className="quick-action-label">
-            Create a League
-            <span className="quick-action-badge"> +</span>
+            <span className="quick-action-badge">+</span>
+            Create League
           </div>
         </button>
         <button className="quick-action" onClick={() => openForm('join')}>
@@ -103,19 +122,19 @@ export default function HomePage() {
             <img className="quick-action-image" src="/images/join-league.png" alt="" />
           </div>
           <div className="quick-action-label">
-            Join a League
-            <span className="quick-action-badge"> #</span>
+            <span className="quick-action-badge">#</span>
+            Join League
           </div>
         </button>
-        <Link to="/leaderboard" className="quick-action">
+        <button className="quick-action" onClick={goToLeaderboard}>
           <div className="quick-action-image-wrap">
             <img className="quick-action-image" src="/images/leaderboard.png" alt="" />
           </div>
           <div className="quick-action-label">
+            <span className="quick-action-badge">🏆</span>
             World Leaderboard
-            <span className="quick-action-badge"> 🏆</span>
           </div>
-        </Link>
+        </button>
       </div>
 
       {activeForm && (
@@ -148,25 +167,27 @@ export default function HomePage() {
         </div>
       )}
 
-      {!loading && (
-        <>
-          <h2>Your Leagues</h2>
-          {leagues.length === 0 ? (
-            <p className="hint">You're not in any leagues yet — create or join one above.</p>
-          ) : (
-            <ul className="league-list">
-              {leagues.map((league) => (
-                <li key={league.id}>
-                  <div>
-                    <div className="league-name">{league.name}</div>
-                    <span className="invite-code-static">Code: {league.invite_code}</span>
-                  </div>
-                  <Link to="/leagues">View</Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
+      <h2>Your Leagues</h2>
+      {loading ? (
+        <p className="hint">Loading...</p>
+      ) : leagues.length === 0 ? (
+        <p className="hint">
+          {isLoggedIn
+            ? "You're not in any leagues yet — create or join one above."
+            : 'Log in to see your leagues.'}
+        </p>
+      ) : (
+        <ul className="league-list">
+          {leagues.map((league) => (
+            <li key={league.id}>
+              <div>
+                <div className="league-name">{league.name}</div>
+                <span className="invite-code-static">Code: {league.invite_code}</span>
+              </div>
+              <Link to="/leagues">View</Link>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )

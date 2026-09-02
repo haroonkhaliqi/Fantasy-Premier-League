@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './AuthContext'
 import LoginPage from './pages/LoginPage'
 import SquadPage from './pages/SquadPage'
@@ -10,17 +10,36 @@ import './App.css'
 
 function Nav() {
   const { isLoggedIn, logout } = useAuth()
-  if (!isLoggedIn) return null
+  const navigate = useNavigate()
+
+  const goProtected = (path: string) => {
+    if (isLoggedIn) {
+      navigate(path)
+    } else {
+      navigate('/login', { state: { from: { pathname: path } } })
+    }
+  }
 
   return (
     <nav className="navbar">
-      <Link to="/home" className="brand">Any Given XI</Link>
+      <Link to="/home" className="brand">
+        <img className="brand-logo" src="/images/logo.png" alt="" />
+        Any Given XI
+      </Link>
       <div className="nav-links">
         <Link to="/matches">Matches</Link>
-        <Link to="/squad">Squad</Link>
+        <button className="nav-link-button" onClick={() => goProtected('/squad')}>
+          Squad
+        </button>
         <Link to="/leaderboard">Leaderboard</Link>
-        <Link to="/leagues">Leagues</Link>
-        <button onClick={logout}>Log out</button>
+        <button className="nav-link-button" onClick={() => goProtected('/leagues')}>
+          Leagues
+        </button>
+        {isLoggedIn ? (
+          <button className="auth-button" onClick={logout}>Log out</button>
+        ) : (
+          <Link to="/login" className="auth-button">Log In</Link>
+        )}
       </div>
     </nav>
   )
@@ -38,15 +57,9 @@ function AppRoutes() {
     <>
       <Nav />
       <Routes>
-        <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <LoginPage />} />
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/" element={<Navigate to="/home" />} />
         <Route
           path="/squad"
           element={
@@ -55,14 +68,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/leaderboard"
-          element={
-            <ProtectedRoute>
-              <LeaderboardPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route
           path="/leagues"
           element={
@@ -71,15 +77,8 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/matches"
-          element={
-            <ProtectedRoute>
-              <MatchesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to={isLoggedIn ? '/squad' : '/login'} />} />
+        <Route path="/matches" element={<MatchesPage />} />
+        <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
     </>
   )

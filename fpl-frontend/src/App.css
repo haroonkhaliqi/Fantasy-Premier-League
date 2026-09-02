@@ -37,17 +37,36 @@ body {
   font-weight: 500;
 }
 
+.nav-link-button {
+  background: none;
+  border: none;
+  outline: none;
+  color: #f0f4f1;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.nav-link-button:hover {
+  color: #74c69d;
+}
+
 .nav-links a:hover {
   color: #74c69d;
 }
 
-.nav-links button {
+.auth-button {
   background: transparent;
   border: 1px solid #52796f;
   color: #f0f4f1;
   padding: 0.4rem 0.9rem;
   border-radius: 6px;
   cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
 }
 
 .auth-page {
@@ -1010,4 +1029,16 @@ body {
 .event-type {
   color: #95d5b2;
   font-weight: 600;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.brand-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
 }
