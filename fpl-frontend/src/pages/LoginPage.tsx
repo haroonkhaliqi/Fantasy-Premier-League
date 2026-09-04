@@ -28,8 +28,10 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
-        <h1>Fantasy Tracker</h1>
+      <div className="auth-container">
+        <div className="auth-image-side" />
+        <div className="auth-card">
+        <h1>Any Given XI</h1>
         <p className="subtitle">{isSignup ? 'Create your account' : 'Log in to your account'}</p>
 
         <form onSubmit={handleSubmit}>
@@ -61,8 +63,13 @@ export default function LoginPage() {
         </form>
 
         <button className="link-button" onClick={() => setIsSignup(!isSignup)}>
-          {isSignup ? 'Already have an account? Log in' : "Don't have an account? Sign up"}
+          {isSignup ? (
+            <>Already have an account? <span className="link-highlight">Log in</span></>
+          ) : (
+            <>Don't have an account? <span className="link-highlight">Sign up</span></>
+          )}
         </button>
+        </div>
       </div>
     </div>
   )

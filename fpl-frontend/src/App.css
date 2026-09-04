@@ -69,26 +69,56 @@ body {
   font-size: 1rem;
 }
 
+
 .auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at top, #1b4332, #0d1f14);
+  background: #0d1f14;
+  padding: 2rem;
+}
+
+.auth-container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  height: 560px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #2d6a4f;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.auth-image-side {
+  flex: 1.4;
+  display: none;
+  background-color: #0d1f14;
+  background-image: url('/images/login-side.jpg');
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+}
+
+@media (min-width: 800px) {
+  .auth-image-side {
+    display: block;
+  }
 }
 
 .auth-card {
+  flex: 1;
   background: #143a24;
-  padding: 2.5rem;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 380px;
-  border: 1px solid #2d6a4f;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .auth-card h1 {
   margin: 0 0 0.25rem;
   font-size: 1.6rem;
+  color: #f0f4f1;
 }
 
 .subtitle {
@@ -1041,4 +1071,65 @@ body {
   width: 64px;
   height: 64px;
   object-fit: contain;
+}
+
+.scores-strip {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #143a24;
+  border-top: 1px solid #2d6a4f;
+  padding: 1.25rem 0;
+  z-index: 50;
+}
+
+.scores-strip-marquee {
+  display: block;
+  overflow: hidden;
+  text-decoration: none;
+  width: 100%;
+}
+
+.scores-strip-track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  animation: scores-scroll 35s linear infinite;
+}
+
+.scores-strip-marquee:hover .scores-strip-track {
+  animation-play-state: paused;
+}
+
+@keyframes scores-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.scores-strip-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.scores-strip-item img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.scores-strip-score {
+  color: #f0f4f1;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.home-page {
+  padding-bottom: 4rem;
 }

@@ -11,6 +11,9 @@ import './App.css'
 function Nav() {
   const { isLoggedIn, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  if (location.pathname === '/login') return null
 
   const goProtected = (path: string) => {
     if (isLoggedIn) {

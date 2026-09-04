@@ -16,12 +16,27 @@ interface League {
   owner_id: number
 }
 
+interface Fixture {
+  id: number
+  gameweek: number | null
+  home_team: string
+  away_team: string
+  home_badge: number | null
+  away_badge: number | null
+  home_score: number | null
+  away_score: number | null
+  started: boolean
+  finished: boolean
+}
+
 export default function HomePage() {
   const { isLoggedIn } = useAuth()
   const navigate = useNavigate()
   const [squad, setSquad] = useState<Squad | null>(null)
   const [leagues, setLeagues] = useState<League[]>([])
   const [loading, setLoading] = useState(true)
+  const [fixtures, setFixtures] = useState<Fixture[]>([])
+  const [news, setNews] = useState<NewsItem[]>([])
 
   const [activeForm, setActiveForm] = useState<'create' | 'join' | null>(null)
   const [leagueName, setLeagueName] = useState('')
@@ -55,6 +70,18 @@ export default function HomePage() {
     loadData()
   }, [isLoggedIn])
 
+  useEffect(() => {
+    Promise.all([api.get('/fixtures'), api.get('/gameweeks/current')])
+      .then(([fixturesRes, currentRes]) => {
+        const current = currentRes.data.current_gameweek
+        const currentFixtures = fixturesRes.data.filter((fx: Fixture) => fx.gameweek === current)
+        setFixtures(currentFixtures)
+      })
+      .catch(() => setFixtures([]))
+  }, [])
+
+  const badgeUrl = (code: number) => `https://resources.premierleague.com/premierleague/badges/70/t${code}.png`
+
   const openForm = (form: 'create' | 'join') => {
     if (!isLoggedIn) {
       navigate('/login', { state: { from: { pathname: '/home' } } })
@@ -66,10 +93,6 @@ export default function HomePage() {
   }
 
   const goToLeaderboard = () => {
-    if (!isLoggedIn) {
-      navigate('/login', { state: { from: { pathname: '/leaderboard' } } })
-      return
-    }
     navigate('/leaderboard')
   }
 
@@ -167,27 +190,43 @@ export default function HomePage() {
         </div>
       )}
 
-      <h2>Your Leagues</h2>
-      {loading ? (
-        <p className="hint">Loading...</p>
-      ) : leagues.length === 0 ? (
-        <p className="hint">
-          {isLoggedIn
-            ? "You're not in any leagues yet — create or join one above."
-            : 'Log in to see your leagues.'}
-        </p>
-      ) : (
-        <ul className="league-list">
-          {leagues.map((league) => (
-            <li key={league.id}>
-              <div>
-                <div className="league-name">{league.name}</div>
-                <span className="invite-code-static">Code: {league.invite_code}</span>
-              </div>
-              <Link to="/leagues">View</Link>
-            </li>
-          ))}
-        </ul>
+      {!loading && (
+        <>
+          <h2>Your Leagues</h2>
+          {leagues.length === 0 ? (
+            <p className="hint">You're not in any leagues yet — create or join one above.</p>
+          ) : (
+            <ul className="league-list">
+              {leagues.map((league) => (
+                <li key={league.id}>
+                  <div>
+                    <div className="league-name">{league.name}</div>
+                    <span className="invite-code-static">Code: {league.invite_code}</span>
+                  </div>
+                  <Link to="/leagues">View</Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+
+      {fixtures.length > 0 && (
+        <div className="scores-strip">
+          <Link to="/matches" className="scores-strip-marquee">
+            <div className="scores-strip-track">
+              {[...fixtures, ...fixtures].map((fx, i) => (
+                <div className="scores-strip-item" key={`${fx.id}-${i}`}>
+                  {fx.home_badge && <img src={badgeUrl(fx.home_badge)} alt="" />}
+                  <span className="scores-strip-score">
+                    {fx.home_score !== null ? fx.home_score : '-'} - {fx.away_score !== null ? fx.away_score : '-'}
+                  </span>
+                  {fx.away_badge && <img src={badgeUrl(fx.away_badge)} alt="" />}
+                </div>
+              ))}
+            </div>
+          </Link>
+        </div>
       )}
     </div>
   )
