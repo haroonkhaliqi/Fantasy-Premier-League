@@ -16,6 +16,14 @@ interface League {
   owner_id: number
 }
 
+interface NewsItem {
+  title: string
+  link: string
+  pub_date: string
+  description: string
+  image_url: string | null
+}
+
 interface Fixture {
   id: number
   gameweek: number | null
@@ -69,6 +77,13 @@ export default function HomePage() {
   useEffect(() => {
     loadData()
   }, [isLoggedIn])
+
+  useEffect(() => {
+    api
+      .get('/news')
+      .then((res) => setNews(res.data))
+      .catch(() => setNews([]))
+  }, [])
 
   useEffect(() => {
     Promise.all([api.get('/fixtures'), api.get('/gameweeks/current')])
@@ -191,24 +206,60 @@ export default function HomePage() {
       )}
 
       {!loading && (
-        <>
-          <h2>Your Leagues</h2>
-          {leagues.length === 0 ? (
-            <p className="hint">You're not in any leagues yet — create or join one above.</p>
-          ) : (
-            <ul className="league-list">
-              {leagues.map((league) => (
-                <li key={league.id}>
-                  <div>
-                    <div className="league-name">{league.name}</div>
-                    <span className="invite-code-static">Code: {league.invite_code}</span>
-                  </div>
-                  <Link to="/leagues">View</Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
+        <div className="home-columns">
+          <div className="news-column">
+            <h2>Premier League News</h2>
+            {news.length === 0 ? (
+              <p className="hint">No news available right now.</p>
+            ) : (
+              <ul className="news-list">
+                {news.map((item) => (
+                  <li key={item.link}>
+                    <a href={item.link} target="_blank" rel="noopener noreferrer" className="news-item">
+                      {item.image_url && <img className="news-image" src={item.image_url} alt="" />}
+                      <div className="news-text">
+                        <div className="news-title">{item.title}</div>
+                        <div className="news-date">
+                          {new Date(item.pub_date).toLocaleDateString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <a
+              href="https://www.bbc.com/sport/football/premier-league"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="news-view-more"
+            >
+              View more Premier League news here
+            </a>
+          </div>
+
+          <div className="leagues-column">
+            <h2>Your Leagues</h2>
+            {leagues.length === 0 ? (
+              <p className="hint">You're not in any leagues yet — create or join one above.</p>
+            ) : (
+              <ul className="league-list">
+                {leagues.map((league) => (
+                  <li key={league.id}>
+                    <div>
+                      <div className="league-name">{league.name}</div>
+                      <span className="invite-code-static">Code: {league.invite_code}</span>
+                    </div>
+                    <Link to="/leagues">View</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       )}
 
       {fixtures.length > 0 && (

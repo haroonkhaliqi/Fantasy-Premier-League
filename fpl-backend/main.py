@@ -480,6 +480,46 @@ def get_fixture_detail(fixture_id: int, db: Session = Depends(get_db)):
                     "side": "home" if side == "h" else "away",
                 })
 
+    def team_lineup(team):
+        if not team:
+            return []
+        gw_stats = (
+            db.query(models.PlayerGameweekStats)
+            .join(models.Player, models.PlayerGameweekStats.player_id == models.Player.id)
+            .filter(
+                models.Player.team_id == team.id,
+                models.PlayerGameweekStats.gameweek_number == fixture.get("event"),
+                models.PlayerGameweekStats.minutes > 0,
+            )
+            .all()
+        )
+        players = []
+        for gs in gw_stats:
+            p = gs.player
+            players.append({
+                "id": p.id,
+                "name": p.name,
+                "position": p.position,
+                "photo_code": p.photo_code,
+                "points": gs.points,
+                "stats": {
+                    "minutes": gs.minutes,
+                    "goals_scored": gs.goals_scored,
+                    "assists": gs.assists,
+                    "clean_sheets": gs.clean_sheets,
+                    "goals_conceded": gs.goals_conceded,
+                    "own_goals": gs.own_goals,
+                    "penalties_saved": gs.penalties_saved,
+                    "penalties_missed": gs.penalties_missed,
+                    "yellow_cards": gs.yellow_cards,
+                    "red_cards": gs.red_cards,
+                    "saves": gs.saves,
+                    "bonus": gs.bonus,
+                },
+            })
+        players.sort(key=lambda x: x["points"], reverse=True)
+        return players
+
     return {
         "id": fixture["id"],
         "home_team": home.name if home else "Unknown",
@@ -492,6 +532,8 @@ def get_fixture_detail(fixture_id: int, db: Session = Depends(get_db)):
         "started": fixture["started"],
         "kickoff_time": fixture["kickoff_time"],
         "events": events,
+        "home_players": team_lineup(home),
+        "away_players": team_lineup(away),
     }
 
 BBC_PL_RSS_URL = "http://feeds.bbci.co.uk/sport/football/premier-league/rss.xml"
@@ -502,17 +544,26 @@ def get_news():
     response.raise_for_status()
     root = ET.fromstring(response.content)
 
+    ns = {"media": "http://search.yahoo.com/mrss/"}
+
     items = []
     for item in root.findall(".//item")[:5]:
         title = item.findtext("title", default="")
         link = item.findtext("link", default="")
         pub_date = item.findtext("pubDate", default="")
         description = item.findtext("description", default="")
+
+        image_url = None
+        thumbnail = item.find("media:thumbnail", ns)
+        if thumbnail is not None:
+            image_url = thumbnail.get("url")
+
         items.append({
             "title": title,
             "link": link,
             "pub_date": pub_date,
             "description": description,
+            "image_url": image_url,
         })
 
     return items

@@ -22,8 +22,34 @@ interface MatchEvent {
   side: 'home' | 'away'
 }
 
+interface PlayerMatchStats {
+  minutes: number
+  goals_scored: number
+  assists: number
+  clean_sheets: number
+  goals_conceded: number
+  own_goals: number
+  penalties_saved: number
+  penalties_missed: number
+  yellow_cards: number
+  red_cards: number
+  saves: number
+  bonus: number
+}
+
+interface FixturePlayer {
+  id: number
+  name: string
+  position: string
+  photo_code: string
+  points: number
+  stats: PlayerMatchStats
+}
+
 interface FixtureDetail extends Fixture {
   events: MatchEvent[]
+  home_players: FixturePlayer[]
+  away_players: FixturePlayer[]
 }
 
 export default function MatchesPage() {
@@ -56,6 +82,27 @@ export default function MatchesPage() {
 
   const badgeUrl = (code: number) =>
     `https://resources.premierleague.com/premierleague/badges/70/t${code}.png`
+
+  const headshotUrl = (photoCode: string) =>
+    `https://resources.premierleague.com/premierleague/photos/players/110x140/p${photoCode}.png`
+
+  const statLine = (s: PlayerMatchStats, position: string) => {
+    const parts: string[] = [`${s.minutes}'`]
+    if (s.goals_scored) parts.push(`${s.goals_scored} Goal${s.goals_scored > 1 ? 's' : ''}`)
+    if (s.assists) parts.push(`${s.assists} Assist${s.assists > 1 ? 's' : ''}`)
+    if (position === 'GK' || position === 'DEF') {
+      if (s.clean_sheets) parts.push('Clean Sheet')
+      if (s.goals_conceded) parts.push(`${s.goals_conceded} Conceded`)
+    }
+    if (position === 'GK' && s.saves) parts.push(`${s.saves} Save${s.saves > 1 ? 's' : ''}`)
+    if (s.penalties_saved) parts.push(`${s.penalties_saved} Pen Saved`)
+    if (s.penalties_missed) parts.push(`${s.penalties_missed} Pen Missed`)
+    if (s.own_goals) parts.push(`${s.own_goals} Own Goal${s.own_goals > 1 ? 's' : ''}`)
+    if (s.yellow_cards) parts.push('Yellow Card')
+    if (s.red_cards) parts.push('Red Card')
+    if (s.bonus) parts.push(`+${s.bonus} Bonus`)
+    return parts.join(' · ')
+  }
 
   const openFixture = async (fixtureId: number) => {
     setDetail(null)
@@ -166,19 +213,48 @@ export default function MatchesPage() {
                   </span>
                 </div>
 
-                {detail.events.length === 0 ? (
-                  <p className="hint">No match events yet.</p>
+                {detail.home_players.length === 0 && detail.away_players.length === 0 ? (
+                  <p className="hint">No player stats yet.</p>
                 ) : (
-                  <div className="event-list">
-                    {detail.events.map((ev, i) => (
-                      <div key={i} className={`event-row ${ev.side}`}>
-                        <span className="event-type">{ev.type}</span>
-                        <span className="event-player">
-                          {ev.player_name}
-                          {ev.value > 1 ? ` x${ev.value}` : ''}
-                        </span>
-                      </div>
-                    ))}
+                  <div className="lineup-columns">
+                    <div className="lineup-column">
+                      {detail.home_players.map((p) => (
+                        <div className="lineup-player" key={p.id}>
+                          <img
+                            className="lineup-player-photo"
+                            src={headshotUrl(p.photo_code)}
+                            alt=""
+                            onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
+                          />
+                          <div className="lineup-player-info">
+                            <div className="lineup-player-name-row">
+                              <span className="lineup-player-name">{p.name}</span>
+                              <span className="lineup-player-points">{p.points} pts</span>
+                            </div>
+                            <div className="lineup-player-stats">{statLine(p.stats, p.position)}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="lineup-column">
+                      {detail.away_players.map((p) => (
+                        <div className="lineup-player" key={p.id}>
+                          <img
+                            className="lineup-player-photo"
+                            src={headshotUrl(p.photo_code)}
+                            alt=""
+                            onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
+                          />
+                          <div className="lineup-player-info">
+                            <div className="lineup-player-name-row">
+                              <span className="lineup-player-name">{p.name}</span>
+                              <span className="lineup-player-points">{p.points} pts</span>
+                            </div>
+                            <div className="lineup-player-stats">{statLine(p.stats, p.position)}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </>
