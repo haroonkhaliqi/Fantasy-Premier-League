@@ -5,6 +5,7 @@ from database import engine, Base, SessionLocal
 from auth import get_current_user
 import squad_rules
 from scheduler import start_scheduler
+import xml.etree.ElementTree as ET
 import models
 import schemas
 import auth
@@ -492,3 +493,26 @@ def get_fixture_detail(fixture_id: int, db: Session = Depends(get_db)):
         "kickoff_time": fixture["kickoff_time"],
         "events": events,
     }
+
+BBC_PL_RSS_URL = "http://feeds.bbci.co.uk/sport/football/premier-league/rss.xml"
+
+@app.get("/news")
+def get_news():
+    response = requests.get(BBC_PL_RSS_URL, timeout=10)
+    response.raise_for_status()
+    root = ET.fromstring(response.content)
+
+    items = []
+    for item in root.findall(".//item")[:5]:
+        title = item.findtext("title", default="")
+        link = item.findtext("link", default="")
+        pub_date = item.findtext("pubDate", default="")
+        description = item.findtext("description", default="")
+        items.append({
+            "title": title,
+            "link": link,
+            "pub_date": pub_date,
+            "description": description,
+        })
+
+    return items
